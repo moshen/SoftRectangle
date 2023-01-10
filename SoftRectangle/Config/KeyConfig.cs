@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
@@ -189,6 +190,7 @@ public class KeyConfig
     private Dictionary<Keys, KeyState.Action> _keyButtonMapping;
 
     // The parsed configuration
+    // @TODO: Make this configuration mapping one-way, like the stick config
     [IgnoreDataMember]
     public Dictionary<Keys, KeyState.Action> KeyButtonMapping
     {
@@ -282,6 +284,14 @@ public class KeyConfig
         UpOrDown = (UInt32)KeyState.Action.RightStickUp | (UInt32)KeyState.Action.RightStickDown,
     };
 
+    private class BitPopComparator : IComparer<UInt32>
+    {
+        public int Compare(UInt32 a, UInt32 b)
+        {
+            return BitOperations.PopCount(a).CompareTo(BitOperations.PopCount(b));
+        }
+    }
+
     private static void UpdateStickConfig(
         Stick stick,
         List<StickConfig> incoming,
@@ -291,6 +301,7 @@ public class KeyConfig
     {
         existing.Clear();
         existingActionValues.Clear();
+        var newActionValues = new List<(UInt32, Vector2)>();
 
         foreach (var cfg in incoming)
         {
@@ -376,12 +387,18 @@ public class KeyConfig
                     coords = Vector2.Multiply(coords, new Vector2(1f, -1f));
                 }
 
-                existingActionValues.Add((bitMask, coords));
+                newActionValues.Add((bitMask, coords));
             }
         }
 
         // Sort from the most bits in the mask to the least
-        existingActionValues.Sort((a, b) => BitOperations.PopCount(b.Item1).CompareTo(BitOperations.PopCount(a.Item1)));
+        // We are intentionally using a stable sort here so in the case of
+        // conflicting binds, we end up using the one that comes first.
+        // We might want to revisit this, as I'm not sure if this matches
+        // rectangle controller behaviour
+        existingActionValues.AddRange(
+            newActionValues.OrderByDescending((e) => e.Item1, new BitPopComparator())
+        );
     }
 
     private List<(UInt32, Vector2)> _leftStickActionValues;

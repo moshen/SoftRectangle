@@ -181,6 +181,14 @@ public class KeyState
 
         controller.ResetReport();
 
+        // This depends on the bit masks being in most populated to less
+        // order. That way, we match the desired stick state first and bail.
+        // Yes, this means on every update the worst case is that we read
+        // through every potential state before failing into the cardinal and
+        // quadrant defaults.
+        //
+        // There is the possibility of a user could add SO MANY mappings that
+        // controller update is slowed, but atm I'm not worried about that
         (UInt32, Vector2) leftStickValue = (0, new Vector2());
         foreach (var entry in config.LeftStickActionValues)
         {
