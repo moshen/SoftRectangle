@@ -8,62 +8,6 @@ using System.Numerics;
 namespace SoftRectangle;
 public class KeyState
 {
-    public enum Action : UInt32
-    {
-        // This section flags are meant to match the 16 bit flags from
-        // IXbox360Controller.SetButtonsFull in case we switch to setting
-        // the flags directly using that method
-        DPadUp            = 0x00000001,
-        DPadDown          = 0x00000002,
-        DPadLeft          = 0x00000004,
-        DPadRight         = 0x00000008,
-        Start             = 0x00000010,
-        Back              = 0x00000020,
-        LeftThumb         = 0x00000040,
-        RightThumb        = 0x00000080,
-        LeftShoulder      = 0x00000100,
-        RightShoulder     = 0x00000200,
-        Guide             = 0x00000400,
-        A                 = 0x00001000,
-        B                 = 0x00002000,
-        X                 = 0x00004000,
-        Y                 = 0x00008000,
-        // End matching section
-
-        LeftStickUp       = 0x00010000,
-        LeftStickDown     = 0x00020000,
-        LeftStickLeft     = 0x00040000,
-        LeftStickRight    = 0x00080000,
-
-        RightStickUp      = 0x00100000,
-        RightStickDown    = 0x00200000,
-        RightStickLeft    = 0x00400000,
-        RightStickRight   = 0x00800000,
-
-        LeftTriggerLight  = 0x01000000,
-        LeftTriggerMid    = 0x02000000,
-        LeftTriggerHard   = 0x04000000,
-        RightTriggerLight = 0x08000000,
-        RightTriggerMid   = 0x10000000,
-        RightTriggerHard  = 0x20000000,
-
-        ModX              = 0x40000000,
-        ModY              = 0x80000000,
-    }
-
-    // @TODO: Unify Stick constants with those in KeyConfig, maybe pull all
-    // these constants into a constants file
-    public readonly static UInt32 LeftStickTopLeft = (UInt32)Action.LeftStickUp | (UInt32)Action.LeftStickLeft;
-    public readonly static UInt32 LeftStickTopRight = (UInt32)Action.LeftStickUp | (UInt32)Action.LeftStickRight;
-    public readonly static UInt32 LeftStickBottomLeft = (UInt32)Action.LeftStickDown | (UInt32)Action.LeftStickLeft;
-    public readonly static UInt32 LeftStickBottomRight = (UInt32)Action.LeftStickDown | (UInt32)Action.LeftStickRight;
-    public readonly static UInt32 LeftStickAny = LeftStickTopLeft | LeftStickBottomRight;
-    public readonly static UInt32 RightStickTopLeft = (UInt32)Action.RightStickUp | (UInt32)Action.RightStickLeft;
-    public readonly static UInt32 RightStickTopRight = (UInt32)Action.RightStickUp | (UInt32)Action.RightStickRight;
-    public readonly static UInt32 RightStickBottomLeft = (UInt32)Action.RightStickDown | (UInt32)Action.RightStickLeft;
-    public readonly static UInt32 RightStickBottomRight = (UInt32)Action.RightStickDown | (UInt32)Action.RightStickRight;
-    public readonly static UInt32 RightStickAny = RightStickTopLeft | RightStickBottomRight;
-
     // Action state encoded into 32 bits, bottom 16 bits are the buttons
     private UInt32 actionState = 0;
 
@@ -204,40 +148,40 @@ public class KeyState
             SetStickCoords(Xbox360Axis.LeftThumbX, Xbox360Axis.LeftThumbY, leftStickValue.Item2);
         }
         // 45 degree angles for left stick directions
-        else if ((actionState & LeftStickTopLeft) == LeftStickTopLeft)
+        else if ((actionState & Stick.LeftStick.TopLeft) == Stick.LeftStick.TopLeft)
         {
             // Top left quadrant
             SetStickCoords(Xbox360Axis.LeftThumbX, Xbox360Axis.LeftThumbY, new Vector2(-.7f, .7f));
         }
-        else if ((actionState & LeftStickTopRight) == LeftStickTopRight)
+        else if ((actionState & Stick.LeftStick.TopRight) == Stick.LeftStick.TopRight)
         {
             // Top right quadrant
             SetStickCoords(Xbox360Axis.LeftThumbX, Xbox360Axis.LeftThumbY, new Vector2(.7f, .7f));
         }
-        else if ((actionState & LeftStickBottomLeft) == LeftStickBottomLeft)
+        else if ((actionState & Stick.LeftStick.BottomLeft) == Stick.LeftStick.BottomLeft)
         {
             // Bottom left quadrant
             SetStickCoords(Xbox360Axis.LeftThumbX, Xbox360Axis.LeftThumbY, new Vector2(-.7f, -.7f));
         }
-        else if ((actionState & LeftStickBottomRight) == LeftStickBottomRight)
+        else if ((actionState & Stick.LeftStick.BottomRight) == Stick.LeftStick.BottomRight)
         {
             // Bottom right quadrant
             SetStickCoords(Xbox360Axis.LeftThumbX, Xbox360Axis.LeftThumbY, new Vector2(.7f, -.7f));
         }
         // Cardinal directions
-        else if ((actionState & (UInt32)Action.LeftStickUp) != 0)
+        else if ((actionState & Stick.LeftStick.Up) != 0)
         {
             controller.SetAxisValue(Xbox360Axis.LeftThumbY, stickLimit);
         }
-        else if ((actionState & (UInt32)Action.LeftStickDown) != 0)
+        else if ((actionState & Stick.LeftStick.Down) != 0)
         {
             controller.SetAxisValue(Xbox360Axis.LeftThumbY, (short)-stickLimit);
         }
-        else if ((actionState & (UInt32)Action.LeftStickLeft) != 0)
+        else if ((actionState & Stick.LeftStick.Left) != 0)
         {
             controller.SetAxisValue(Xbox360Axis.LeftThumbX, (short)-stickLimit);
         }
-        else if ((actionState & (UInt32)Action.LeftStickRight) != 0)
+        else if ((actionState & Stick.LeftStick.Right) != 0)
         {
             controller.SetAxisValue(Xbox360Axis.LeftThumbX, stickLimit);
         }
@@ -246,7 +190,7 @@ public class KeyState
         // for additional left stick support
         //
         // @TODO: Confirm that this is the correct behavior
-        if ((leftStickValue.Item1 & RightStickAny) == 0)
+        if ((leftStickValue.Item1 & Stick.RightStick.Any) == 0)
         {
             (UInt32, Vector2) rightStickValue = (0, new Vector2());
             foreach (var entry in config.RightStickActionValues)
@@ -263,40 +207,40 @@ public class KeyState
                 SetStickCoords(Xbox360Axis.RightThumbX, Xbox360Axis.RightThumbY, rightStickValue.Item2);
             }
             // 45 degree angles for left stick directions
-            else if ((actionState & RightStickTopLeft) == RightStickTopLeft)
+            else if ((actionState & Stick.RightStick.TopLeft) == Stick.RightStick.TopLeft)
             {
                 // Top left quadrant
                 SetStickCoords(Xbox360Axis.RightThumbX, Xbox360Axis.RightThumbY, new Vector2(-.7f, .7f));
             }
-            else if ((actionState & RightStickTopRight) == RightStickTopRight)
+            else if ((actionState & Stick.RightStick.TopRight) == Stick.RightStick.TopRight)
             {
                 // Top right quadrant
                 SetStickCoords(Xbox360Axis.RightThumbX, Xbox360Axis.RightThumbY, new Vector2(.7f, .7f));
             }
-            else if ((actionState & RightStickBottomLeft) == RightStickBottomLeft)
+            else if ((actionState & Stick.RightStick.BottomLeft) == Stick.RightStick.BottomLeft)
             {
                 // Bottom left quadrant
                 SetStickCoords(Xbox360Axis.RightThumbX, Xbox360Axis.RightThumbY, new Vector2(-.7f, -.7f));
             }
-            else if ((actionState & RightStickBottomRight) == RightStickBottomRight)
+            else if ((actionState & Stick.RightStick.BottomRight) == Stick.RightStick.BottomRight)
             {
                 // Bottom right quadrant
                 SetStickCoords(Xbox360Axis.RightThumbX, Xbox360Axis.RightThumbY, new Vector2(.7f, -.7f));
             }
             // Cardinal directions
-            else if ((actionState & (UInt32)Action.RightStickUp) != 0)
+            else if ((actionState & Stick.RightStick.Up) != 0)
             {
                 controller.SetAxisValue(Xbox360Axis.RightThumbY, stickLimit);
             }
-            else if ((actionState & (UInt32)Action.RightStickDown) != 0)
+            else if ((actionState & Stick.RightStick.Down) != 0)
             {
                 controller.SetAxisValue(Xbox360Axis.RightThumbY, (short)-stickLimit);
             }
-            else if ((actionState & (UInt32)Action.RightStickLeft) != 0)
+            else if ((actionState & Stick.RightStick.Left) != 0)
             {
                 controller.SetAxisValue(Xbox360Axis.RightThumbX, (short)-stickLimit);
             }
-            else if ((actionState & (UInt32)Action.RightStickRight) != 0)
+            else if ((actionState & Stick.RightStick.Right) != 0)
             {
                 controller.SetAxisValue(Xbox360Axis.RightThumbX, stickLimit);
             }

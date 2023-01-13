@@ -40,34 +40,34 @@ public class KeyConfig
     {
         var config = new KeyConfig();
 
-        var tempMapping = new Dictionary<Keys, KeyState.Action>();
+        var tempMapping = new Dictionary<Keys, Action>();
 
-        tempMapping.Add(Keys.W, KeyState.Action.LeftStickUp);
-        tempMapping.Add(Keys.A, KeyState.Action.LeftStickLeft);
-        tempMapping.Add(Keys.S, KeyState.Action.LeftStickDown);
-        tempMapping.Add(Keys.D, KeyState.Action.LeftStickRight);
-        tempMapping.Add(Keys.LShiftKey, KeyState.Action.LeftTriggerHard);
+        tempMapping.Add(Keys.W, Action.LeftStickUp);
+        tempMapping.Add(Keys.A, Action.LeftStickLeft);
+        tempMapping.Add(Keys.S, Action.LeftStickDown);
+        tempMapping.Add(Keys.D, Action.LeftStickRight);
+        tempMapping.Add(Keys.LShiftKey, Action.LeftTriggerHard);
 
-        tempMapping.Add(Keys.Alt, KeyState.Action.ModX);
-        tempMapping.Add(Keys.Right, KeyState.Action.ModX); // @REMOVEME: This is Colin's mapping
-        tempMapping.Add(Keys.Space, KeyState.Action.ModY);
+        tempMapping.Add(Keys.Alt, Action.ModX);
+        tempMapping.Add(Keys.Right, Action.ModX); // @REMOVEME: This is Colin's mapping
+        tempMapping.Add(Keys.Space, Action.ModY);
 
-        tempMapping.Add(Keys.J, KeyState.Action.X);
-        tempMapping.Add(Keys.K, KeyState.Action.B);
-        tempMapping.Add(Keys.L, KeyState.Action.RightShoulder);
-        tempMapping.Add(Keys.OemSemicolon, KeyState.Action.LeftStickUp);
-        tempMapping.Add(Keys.U, KeyState.Action.RightTriggerHard);
-        tempMapping.Add(Keys.I, KeyState.Action.Y);
-        tempMapping.Add(Keys.O, KeyState.Action.RightTriggerLight);
-        tempMapping.Add(Keys.P, KeyState.Action.RightTriggerMid);
+        tempMapping.Add(Keys.J, Action.X);
+        tempMapping.Add(Keys.K, Action.B);
+        tempMapping.Add(Keys.L, Action.RightShoulder);
+        tempMapping.Add(Keys.OemSemicolon, Action.LeftStickUp);
+        tempMapping.Add(Keys.U, Action.RightTriggerHard);
+        tempMapping.Add(Keys.I, Action.Y);
+        tempMapping.Add(Keys.O, Action.RightTriggerLight);
+        tempMapping.Add(Keys.P, Action.RightTriggerMid);
 
-        tempMapping.Add(Keys.H, KeyState.Action.A);
-        tempMapping.Add(Keys.N, KeyState.Action.RightStickLeft);
-        tempMapping.Add(Keys.M, KeyState.Action.RightStickDown);
-        tempMapping.Add(Keys.Oemcomma, KeyState.Action.RightStickRight);
-        tempMapping.Add(Keys.RShiftKey, KeyState.Action.RightStickUp);
+        tempMapping.Add(Keys.H, Action.A);
+        tempMapping.Add(Keys.N, Action.RightStickLeft);
+        tempMapping.Add(Keys.M, Action.RightStickDown);
+        tempMapping.Add(Keys.Oemcomma, Action.RightStickRight);
+        tempMapping.Add(Keys.RShiftKey, Action.RightStickUp);
 
-        tempMapping.Add(Keys.D5, KeyState.Action.Start);
+        tempMapping.Add(Keys.D5, Action.Start);
 
         config.KeyButtonMapping = tempMapping;
 
@@ -187,12 +187,12 @@ public class KeyConfig
         return config;
     }
 
-    private Dictionary<Keys, KeyState.Action> _keyButtonMapping;
+    private Dictionary<Keys, Action> _keyButtonMapping;
 
     // The parsed configuration
     // @TODO: Make this configuration mapping one-way, like the stick config
     [IgnoreDataMember]
-    public Dictionary<Keys, KeyState.Action> KeyButtonMapping
+    public Dictionary<Keys, Action> KeyButtonMapping
     {
         get { return _keyButtonMapping; }
         set
@@ -231,8 +231,8 @@ public class KeyConfig
 
             foreach (var entry in value)
             {
-                KeyState.Action actionRes;
-                if (Enum.TryParse<KeyState.Action>(entry.Key, out actionRes))
+                Action actionRes;
+                if (Enum.TryParse<Action>(entry.Key, out actionRes))
                 {
                     var newVal = new List<string>();
 
@@ -251,38 +251,6 @@ public class KeyConfig
             }
         }
     }
-
-    private struct Stick
-    {
-        public string Name;
-        public UInt32 Up;
-        public UInt32 Down;
-        public UInt32 Left;
-        public UInt32 Right;
-        public UInt32 LeftOrRight;
-        public UInt32 UpOrDown;
-    }
-
-    private static Stick LeftStick = new Stick
-    {
-        Name = "LeftStick",
-        Up = (UInt32)KeyState.Action.LeftStickUp,
-        Down = (UInt32)KeyState.Action.LeftStickDown,
-        Left = (UInt32)KeyState.Action.LeftStickLeft,
-        Right = (UInt32)KeyState.Action.LeftStickRight,
-        LeftOrRight = (UInt32)KeyState.Action.LeftStickLeft | (UInt32)KeyState.Action.LeftStickRight,
-        UpOrDown = (UInt32)KeyState.Action.LeftStickUp | (UInt32)KeyState.Action.LeftStickDown,
-    };
-    private static Stick RightStick = new Stick
-    {
-        Name = "RightStick",
-        Up = (UInt32)KeyState.Action.RightStickUp,
-        Down = (UInt32)KeyState.Action.RightStickDown,
-        Left = (UInt32)KeyState.Action.RightStickLeft,
-        Right = (UInt32)KeyState.Action.RightStickRight,
-        LeftOrRight = (UInt32)KeyState.Action.RightStickLeft | (UInt32)KeyState.Action.RightStickRight,
-        UpOrDown = (UInt32)KeyState.Action.RightStickUp | (UInt32)KeyState.Action.RightStickDown,
-    };
 
     private class BitPopComparator : IComparer<UInt32>
     {
@@ -347,12 +315,12 @@ public class KeyConfig
 
             foreach (var actions in actionNames)
             {
-                List<KeyState.Action> parsedActions = new List<KeyState.Action>();
+                List<Action> parsedActions = new List<Action>();
 
                 foreach (var action in actions)
                 {
-                    KeyState.Action actionRes;
-                    if (Enum.TryParse<KeyState.Action>(action, out actionRes))
+                    Action actionRes;
+                    if (Enum.TryParse<Action>(action, out actionRes))
                     {
                         parsedActions.Add(actionRes);
                     }
@@ -414,7 +382,7 @@ public class KeyConfig
     {
         get { return _leftStickConfig; }
         set {
-            UpdateStickConfig(LeftStick, value, _leftStickConfig, _leftStickActionValues);
+            UpdateStickConfig(Stick.LeftStick, value, _leftStickConfig, _leftStickActionValues);
         }
     }
 
@@ -431,7 +399,7 @@ public class KeyConfig
     {
         get { return _rightStickConfig; }
         set {
-            UpdateStickConfig(RightStick, value, _rightStickConfig, _rightStickActionValues);
+            UpdateStickConfig(Stick.RightStick, value, _rightStickConfig, _rightStickActionValues);
         }
     }
 
@@ -499,7 +467,7 @@ public class KeyConfig
 
     public KeyConfig()
     {
-        _keyButtonMapping = new Dictionary<Keys, KeyState.Action>();
+        _keyButtonMapping = new Dictionary<Keys, Action>();
         _configMapping = new Dictionary<string, List<string>>();
         _leftStickConfig = new List<StickConfig>();
         _leftStickActionValues = new List<(UInt32, Vector2)>();

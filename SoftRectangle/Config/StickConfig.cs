@@ -8,9 +8,9 @@ namespace SoftRectangle.Config;
 [DataContract]
 public class StickConfig
 {
-    private List<KeyState.Action> _parsedActions = new();
+    private List<Action> _parsedActions = new();
     [IgnoreDataMember]
-    public List<KeyState.Action> ParsedActions
+    public List<Action> ParsedActions
     {
         get { return _parsedActions; }
     }
@@ -22,13 +22,13 @@ public class StickConfig
         get { return _actions; }
         set
         {
-            _parsedActions = new List<KeyState.Action>();
+            _parsedActions = new List<Action>();
             _actions = new List<string>();
 
             foreach (var entry in value)
             {
-                KeyState.Action actionRes;
-                if (Enum.TryParse<KeyState.Action>(entry, out actionRes))
+                Action actionRes;
+                if (Enum.TryParse<Action>(entry, out actionRes))
                 {
                     _actions.Add(entry);
                     _parsedActions.Add(actionRes);
