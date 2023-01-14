@@ -1,6 +1,6 @@
-﻿using SoftRectangle.Config;
-using Nefarius.ViGEm.Client;
+﻿using Nefarius.ViGEm.Client;
 using Nefarius.ViGEm.Client.Targets;
+using SoftRectangle.Config;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -22,6 +22,8 @@ public partial class MainWindow : Window
 
     public MainWindow() 
     {
+        // @TODO: Replace with actually reading from a config file, this is just
+        // to confirm that the configuration code works
         appConfig = new AppConfig();
         appConfig.PassthroughKeysConfig = new List<string> { "LWin", "Tab" };
 
@@ -33,17 +35,24 @@ public partial class MainWindow : Window
         controller.AutoSubmitReport = false;
         controller.Connect();
 
+        // @TODO: Replace with actually reading from a config file, this is just
+        // to confirm that the configuration code works
+        string tempAppConfigJson = appConfig.Serialize();
+        // @REMOVEME: Just checking our serialized config
+        Debug.WriteLine(tempAppConfigJson);
+        appConfig = AppConfig.Deserialize(tempAppConfigJson);
+
         // @TODO: Check for saved default config, otherwise load default config
         keyConfig = KeyConfig.GetDefaultMelee();
 
-        string tempXmlConfig = keyConfig.Serialize();
+        string tempKeyConfigJson = keyConfig.Serialize();
 
         // @REMOVEME: Just checking our serialized config
-        Debug.WriteLine(tempXmlConfig);
+        Debug.WriteLine(tempKeyConfigJson);
 
         // @TODO: Replace with actually reading from a config file, this is just
         // to confirm that the configuration code works
-        keyConfig = KeyConfig.Deserialize(tempXmlConfig);
+        keyConfig = KeyConfig.Deserialize(tempKeyConfigJson);
 
         keyState = new KeyState(keyConfig, controller);
 

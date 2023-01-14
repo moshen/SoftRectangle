@@ -1,41 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
-using System.Xml;
 
 namespace SoftRectangle.Config;
 
 [DataContract]
-public class KeyConfig
+public class KeyConfig : BaseConfig<KeyConfig>
 {
-    private static Stream GenerateStreamFromString(string s)
-    {
-        var stream = new MemoryStream();
-        var writer = new StreamWriter(stream);
-        writer.Write(s);
-        writer.Flush();
-        stream.Position = 0;
-        return stream;
-    }
-
-    public static KeyConfig Deserialize(string configXmlStr)
-    {
-        var serializer = new DataContractSerializer(typeof(KeyConfig));
-        KeyConfig? config = (KeyConfig?)serializer.ReadObject(GenerateStreamFromString(configXmlStr));
-
-        if (config == null)
-        {
-            // @TODO: Add an actual configuration error and error handling
-            throw new Exception("Configuration error");
-        }
-
-        return config;
-    }
-
     public static KeyConfig GetDefaultMelee()
     {
         var config = new KeyConfig();
@@ -186,6 +160,9 @@ public class KeyConfig
 
         return config;
     }
+
+    [DataMember]
+    public uint Version { get; set; } = 1;
 
     private Dictionary<Keys, Action> _keyButtonMapping;
 
@@ -482,23 +459,6 @@ public class KeyConfig
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
         GetType().GetConstructor(Array.Empty<Type>()).Invoke(this, null);
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
-    }
-
-    public string Serialize()
-    {
-        var serializer = new DataContractSerializer(this.GetType());
-        string xmlString;
-        using (var sw = new StringWriter())
-        {
-            using (var writer = new XmlTextWriter(sw))
-            {
-                writer.Formatting = Formatting.Indented; // indent the Xml so it's human readable
-                serializer.WriteObject(writer, this);
-                writer.Flush();
-                xmlString = sw.ToString();
-            }
-        }
-        return xmlString;
     }
 }
 

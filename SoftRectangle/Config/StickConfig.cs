@@ -5,6 +5,12 @@ using System.Runtime.Serialization;
 
 namespace SoftRectangle.Config;
 
+/// <summary>
+/// This represents a single stick configuration mapping <see
+/// cref="KeyConfig.UpdateStickConfig(SoftRectangle.Stick,
+/// List{SoftRectangle.Config.StickConfig},
+/// List{SoftRectangle.Config.StickConfig}, List{(uint, Vector2)})"/>
+/// </summary>
 [DataContract]
 public class StickConfig
 {
@@ -27,8 +33,7 @@ public class StickConfig
 
             foreach (var entry in value)
             {
-                Action actionRes;
-                if (Enum.TryParse<Action>(entry, out actionRes))
+                if (Enum.TryParse<Action>(entry, out Action actionRes))
                 {
                     _actions.Add(entry);
                     _parsedActions.Add(actionRes);
@@ -38,7 +43,6 @@ public class StickConfig
     }
 
     private List<string> _cardinals = new();
-    // Use x,0 for Left/Right and 0,y for Up/Down
     [DataMember]
     public List<string> Cardinals
     {
@@ -97,5 +101,4 @@ public class StickConfig
         } 
     }
 }
-
 

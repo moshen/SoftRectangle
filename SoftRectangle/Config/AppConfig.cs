@@ -7,8 +7,11 @@ using System.Windows.Forms;
 namespace SoftRectangle.Config;
 
 [DataContract]
-public class AppConfig
+public class AppConfig : BaseConfig<AppConfig>
 {
+    [DataMember]
+    public uint Version { get; set; } = 1;
+
     private HashSet<Keys> _disableKeys = new();
 
     [IgnoreDataMember]
@@ -23,8 +26,7 @@ public class AppConfig
             _disableKeys = new HashSet<Keys>();
             foreach (var key in value)
             {
-                Keys keyRes;
-                if (Enum.TryParse<Keys>(key, out keyRes))
+                if (Enum.TryParse<Keys>(key, out Keys keyRes))
                 {
                     _disableKeys.Add(keyRes);
                 }
@@ -77,5 +79,4 @@ public class AppConfig
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
     }
 }
-
 
