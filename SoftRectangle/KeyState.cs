@@ -133,15 +133,7 @@ public class KeyState
         //
         // There is the possibility of a user could add SO MANY mappings that
         // controller update is slowed, but atm I'm not worried about that
-        (UInt32, Vector2) leftStickValue = (0, new Vector2());
-        foreach (var entry in config.LeftStickActionValues)
-        {
-            if ((actionState & entry.Item1) == entry.Item1)
-            {
-                leftStickValue = entry;
-                break;
-            }
-        }
+        (UInt32, Vector2) leftStickValue = config.LeftStickActions.GetStickAction(actionState);
 
         if (leftStickValue.Item1 != 0)
         {
@@ -192,15 +184,7 @@ public class KeyState
         // @TODO: Confirm that this is the correct behavior
         if ((leftStickValue.Item1 & Stick.RightStick.Any) == 0)
         {
-            (UInt32, Vector2) rightStickValue = (0, new Vector2());
-            foreach (var entry in config.RightStickActionValues)
-            {
-                if ((actionState & entry.Item1) == entry.Item1)
-                {
-                    rightStickValue = entry;
-                    break;
-                }
-            }
+            (UInt32, Vector2) rightStickValue = config.RightStickActions.GetStickAction(actionState);
 
             if (rightStickValue.Item1 != 0)
             {

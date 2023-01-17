@@ -229,128 +229,11 @@ public class KeyConfig : BaseConfig<KeyConfig>
         }
     }
 
-    private class BitPopComparator : IComparer<UInt32>
-    {
-        public int Compare(UInt32 a, UInt32 b)
-        {
-            return BitOperations.PopCount(a).CompareTo(BitOperations.PopCount(b));
-        }
-    }
-
-    private static void UpdateStickConfig(
-        Stick stick,
-        List<StickConfig> incoming,
-        List<StickConfig> existing,
-        List<(UInt32, Vector2)> existingActionValues
-    )
-    {
-        existing.Clear();
-        existingActionValues.Clear();
-        var newActionValues = new List<(UInt32, Vector2)>();
-
-        foreach (var cfg in incoming)
-        {
-            existing.Add(cfg);
-
-            UInt32 partialBitMask = 0;
-
-            foreach (var action in cfg.ParsedActions)
-            {
-                partialBitMask |= (UInt32)action;
-            }
-
-            List<List<string>> actionNames = new List<List<string>>();
-
-            if (cfg.Cardinals.Count > 0)
-            {
-                foreach (var cardinal in cfg.Cardinals)
-                {
-                    actionNames.Add(new List<string> { stick.Name + cardinal });
-                }
-            }
-            else if (cfg.Quadrants.Count > 0)
-            {
-                foreach (var quadrant in cfg.Quadrants)
-                {
-                    switch (quadrant)
-                    {
-                        case "UpLeft":
-                            actionNames.Add(new List<string> { stick.Name + "Up", stick.Name + "Left" });
-                            break;
-                        case "UpRight":
-                            actionNames.Add(new List<string> { stick.Name + "Up", stick.Name + "Right" });
-                            break;
-                        case "DownLeft":
-                            actionNames.Add(new List<string> { stick.Name + "Down", stick.Name + "Left" });
-                            break;
-                        case "DownRight":
-                            actionNames.Add(new List<string> { stick.Name + "Down", stick.Name + "Right" });
-                            break;
-                    }
-                }
-            }
-
-            foreach (var actions in actionNames)
-            {
-                List<Action> parsedActions = new List<Action>();
-
-                foreach (var action in actions)
-                {
-                    Action actionRes;
-                    if (Enum.TryParse<Action>(action, out actionRes))
-                    {
-                        parsedActions.Add(actionRes);
-                    }
-                }
-
-                UInt32 bitMask = partialBitMask;
-                foreach (var action in parsedActions)
-                {
-                    bitMask |= (UInt32)action;
-                }
-
-                Vector2 coords = cfg.Coordinates;
-
-                if (cfg.Cardinals.Count > 0)
-                {
-                    if ((bitMask & stick.LeftOrRight) != 0)
-                    {
-                        coords.Y = 0f;
-                    }
-                    if ((bitMask & stick.UpOrDown) != 0)
-                    {
-                        coords.X = 0f;
-                    }
-                }
-
-                if ((bitMask & stick.Left) != 0)
-                {
-                    coords = Vector2.Multiply(coords, new Vector2(-1f, 1f));
-                }
-                if ((bitMask & stick.Down) != 0)
-                {
-                    coords = Vector2.Multiply(coords, new Vector2(1f, -1f));
-                }
-
-                newActionValues.Add((bitMask, coords));
-            }
-        }
-
-        // Sort from the most bits in the mask to the least
-        // We are intentionally using a stable sort here so in the case of
-        // conflicting binds, we end up using the one that comes first.
-        // We might want to revisit this, as I'm not sure if this matches
-        // rectangle controller behaviour
-        existingActionValues.AddRange(
-            newActionValues.OrderByDescending((e) => e.Item1, new BitPopComparator())
-        );
-    }
-
-    private List<(UInt32, Vector2)> _leftStickActionValues;
+    private StickActions _leftStickActions = new StickActions();
     [IgnoreDataMember]
-    public List<(UInt32, Vector2)> LeftStickActionValues
+    public StickActions LeftStickActions
     {
-        get { return _leftStickActionValues; }
+        get { return _leftStickActions; }
     }
 
     private List<StickConfig> _leftStickConfig;
@@ -359,15 +242,17 @@ public class KeyConfig : BaseConfig<KeyConfig>
     {
         get { return _leftStickConfig; }
         set {
-            UpdateStickConfig(Stick.LeftStick, value, _leftStickConfig, _leftStickActionValues);
+            _leftStickActions = new StickActions(Stick.LeftStick, value);
+            _leftStickConfig.Clear();
+            _leftStickConfig.AddRange(value);
         }
     }
 
-    private List<(UInt32, Vector2)> _rightStickActionValues;
+    private StickActions _rightStickActions = new StickActions();
     [IgnoreDataMember]
-    public List<(UInt32, Vector2)> RightStickActionValues
+    public StickActions RightStickActions
     {
-        get { return _rightStickActionValues; }
+        get { return _rightStickActions; }
     }
 
     private List<StickConfig> _rightStickConfig;
@@ -376,7 +261,9 @@ public class KeyConfig : BaseConfig<KeyConfig>
     {
         get { return _rightStickConfig; }
         set {
-            UpdateStickConfig(Stick.RightStick, value, _rightStickConfig, _rightStickActionValues);
+            _rightStickActions = new StickActions(Stick.RightStick, value);
+            _rightStickConfig.Clear();
+            _rightStickConfig.AddRange(value);
         }
     }
 
@@ -447,9 +334,7 @@ public class KeyConfig : BaseConfig<KeyConfig>
         _keyButtonMapping = new Dictionary<Keys, Action>();
         _configMapping = new Dictionary<string, List<string>>();
         _leftStickConfig = new List<StickConfig>();
-        _leftStickActionValues = new List<(UInt32, Vector2)>();
         _rightStickConfig = new List<StickConfig>();
-        _rightStickActionValues = new List<(UInt32, Vector2)>();
     }
 
     // Call the empty constructor on deserialization
